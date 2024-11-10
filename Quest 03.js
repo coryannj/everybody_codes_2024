@@ -21,7 +21,7 @@ function digAll (input,part_No){
     
         if(newQueue.length>0){
             queue = newQueue
-            counter+=queue.length
+            counter+=newQueue.length
         } else {
             break;
         }
