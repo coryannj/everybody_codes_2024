@@ -30,6 +30,6 @@ function digAll (input,part_No){
     return counter
 }
 
-console.log(digAll(input1,1))
-console.log(digAll(input2,2))
-console.log(digAll(input3,3))
+console.log(digAll(input1,1)) // Part 1
+console.log(digAll(input2,2)) // Part 2
+console.log(digAll(input3,3)) // Part 3
