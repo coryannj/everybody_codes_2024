@@ -1,0 +1,37 @@
+const fs = require('fs');
+const input1 = fs.readFileSync('../quest3.txt',{ encoding: 'utf8', flag: 'r' });
+const input2 = fs.readFileSync('../quest3_2.txt',{ encoding: 'utf8', flag: 'r' });
+const input3 = fs.readFileSync('../quest3_3.txt',{ encoding: 'utf8', flag: 'r' });
+
+function adjacent ([r,c],part_No){
+    return part_No<3 ? [[r-1,c],[r,c+1],[r+1,c],[r,c-1]] : [[r-1,c],[r,c+1],[r+1,c],[r,c-1],[r-1,c+1],[r+1,c+1],[r+1,c-1],[r-1,c-1]]
+}
+
+function dig (grid,queue,part_No){
+    let toDig = queue.filter((x)=>adjacent(x,part_No).every(([r,c])=> queue.findIndex(([zr,zc])=> zr ===r && zc === c) !== -1))
+    toDig.forEach(([tr,tc])=>grid[tr][tc]++)
+
+    return [grid,toDig]
+}
+
+function digAll (input,part_No){
+    let grid = input.replaceAll('#','1').split(/[\r\n]+/).map((x)=>x.split(''))
+    let queue = grid.flatMap((x,ix)=>x.flatMap((y,yx)=>y === '.' ? [] : [[ix,yx]])) // Array of [r,c] which have been dug
+
+    while(queue.length>0){
+        let [newGrid,newQueue] = dig(grid,queue,part_No)
+    
+        if(newQueue.length>0){
+            grid = newGrid
+            queue = newQueue
+        } else {
+            break;
+        }
+    }
+    
+    return grid.flatMap((x)=>x.filter((y)=>y!=='.').map((z)=>parseInt(z))).reduce((acc,curr)=>acc+curr,0)
+}
+
+console.log(digAll(input1,1))
+console.log(digAll(input2,2))
+console.log(digAll(input3,3))
