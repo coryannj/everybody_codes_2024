@@ -8,7 +8,7 @@ function adjacent ([r,c],part_No){
 }
 
 function dig (queue,part_No){
-    let toDig = queue.filter((x)=>adjacent(x,part_No).every(([r,c])=> queue.findIndex(([zr,zc])=> zr ===r && zc === c) !== -1))
+    let toDig = queue.filter((x)=>adjacent(x,part_No).every(([r,c])=> queue.some(([zr,zc])=> zr === r && zc === c)))
     return toDig
 }
 
