@@ -7,17 +7,12 @@ function adjacent ([r,c],part_No){
     return part_No<3 ? [[r-1,c],[r,c+1],[r+1,c],[r,c-1]] : [[r-1,c],[r,c+1],[r+1,c],[r,c-1],[r-1,c+1],[r+1,c+1],[r+1,c-1],[r-1,c-1]]
 }
 
-function dig (queue,part_No){
-    let toDig = queue.filter((x)=>adjacent(x,part_No).every(([r,c])=> queue.some(([zr,zc])=> zr === r && zc === c)))
-    return toDig
-}
-
 function digAll (input,part_No){
     let queue = input.replaceAll('#','1').split(/[\r\n]+/).map((x)=>x.split('')).flatMap((x,ix)=>x.flatMap((y,yx)=>y === '.' ? [] : [[ix,yx]])) // Array of [r,c] which have been dug
     let counter = queue.length
 
     while(queue.length>0){
-        let newQueue = dig(queue,part_No)
+        let newQueue = queue.filter((x)=>adjacent(x,part_No).every(([r,c])=> queue.some(([zr,zc])=> zr === r && zc === c)))
     
         if(newQueue.length>0){
             queue = newQueue
