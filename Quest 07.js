@@ -7,34 +7,6 @@ const input4 = fs.readFileSync('../quest7_2r.txt',{ encoding: 'utf8', flag: 'r' 
 const input5 = fs.readFileSync('../quest7_3r.txt',{ encoding: 'utf8', flag: 'r' });
 const subs = {'=':0,'-':-1,'+':1}
 
-// Shamelessly taken from https://stackoverflow.com/a/37580979
-function* permute(permutation) {
-    let cache = {}
-    var length = permutation.length,
-        c = Array(length).fill(0),
-        i = 1, k, p;
-  
-    //yield permutation.slice();
-    while (i < length) {
-      if (c[i] < i) {
-        k = i % 2 && c[i];
-        p = permutation[i];
-        permutation[i] = permutation[k];
-        permutation[k] = p;
-        ++c[i];
-        i = 1;
-
-        if(!cache[permutation.slice().join('|')]){
-            cache[permutation.slice().join('|')]=true
-            yield permutation.slice();
-        }
-      } else {
-        c[i] = 0;
-        ++i;
-      }
-    }
-}
-
 // Part 1
 console.log(input1.split(/[\r\n]+/).map((x)=>x.split(/[,:]/).map((y,yx)=> yx === 0 ? y : subs[y])).map((x)=>[x[0],x.slice(1).concat(x.slice(1,(10-x.slice(1).length))).map((sum = 10, n => sum += n)).reduce((acc,curr)=>acc+curr)]).sort((a,b)=>b[1]-a[1]).map((x)=>x[0]).join('')) // Part 1 answer
 
@@ -50,9 +22,12 @@ let racetrack2 = parseTrack2[0].slice(1).concat(parseTrack2.slice(1,-1).flatMap(
 console.log(Array(chariots2.length).fill('.').map((x,ix)=>Array(loops2).fill('.').map((y)=>racetrack2.slice()).flat()).map((x,ix)=>x.map((y,yx)=>y !== 0 ? y : chariots2[ix][1][yx%cLen]).map((sum = 10, n => sum += n)).reduce((acc,curr)=>acc+curr)).map((x,ix)=>[chariots2[ix][0],x]).sort((a,b)=>b[1]-a[1]).map((x)=>x[0]).join('')) // Part 2 answer
 
 // Part 3
-let loops3 = 2024
-//let loops3 = 11 // Will work with 11 loops only, perf goes from 22s -> 10s ¯\_(ツ)_/¯
-let rival = input3.slice(2).split(',').map((x)=>subs[x])
+let cache = {}
+//let loops3 = 2024
+let loops3 = 11 // Will work with 11 loops only - perf goes from ~12s -> 0.2s
+let rival = input3.slice(2).split(',').map((x)=>subs[x]) 
+cache[rival.join('|')] = true
+
 let planLen = rival.length
 
 let parseTrack3 = input5.replace('S','=').split(/[\r\n]+/).map((x)=>x.split(''));
@@ -73,25 +48,45 @@ let allLoops = Array(loops3).fill('.').map((y)=>racetrack3.slice()).flat()
 
 let rivalscore = allLoops.map((x,ix)=> x !== 0 ? x : rival[ix%planLen]).map((sum = 10, n => sum += n)).reduce((acc,curr)=>acc+curr);
 
-let higher = 0
-let perm = permute(rival);
-let t = perm.next();
+// From https://stackoverflow.com/questions/12303989/cartesian-product-of-multiple-arrays-in-javascript
+function* cartesian(head, ...tail) {
+  const remainder = tail.length > 0 ? cartesian(...tail) : [[]];
+  for (let r of remainder) for (let h of head) yield [h, ...r];
+}
 
-do {
+function valid(tArr){
+  let score = [0,0,0]
+  for(i=0;i<11;i++){
+    score[tArr[i]+1]++
+  }
+
+  if('335' === score.join('') && !cache[tArr.join('|')]){
+    cache[tArr.join('|')] = true
+    return true
+  } else {
+    return false
+  }
+}
+
+let higher = 0
+let pArr = Array(11).fill('.').map((x)=>[-1,0,1])
+let perm = cartesian(...pArr)
+
+for(const p of perm){  
+  if(p && valid(p)){
     let thisScore = 0
     let currScore = 10
     let j = 0
     let k = allLoops.length
+    
     while(k--){
-        currScore += allLoops[j] !== 0 ? allLoops[j] : t.value[j%planLen]
+        currScore += allLoops[j] !== 0 ? allLoops[j] : p[j%planLen]
         thisScore += currScore
         j++
     }
 
     if(thisScore>rivalscore) higher++
-    
-    t = perm.next()
-
-} while(!t.done)
+  }
+}
 
 console.log(higher)
