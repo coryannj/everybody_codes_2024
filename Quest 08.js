@@ -36,9 +36,7 @@ let total3 = 1
 let lastLayer = [1]
 
 while(total3<blocks3){
-  thickness3*=nP3
-  thickness3%=nA3
-  thickness3+=nA3
+  thickness3 = (thickness3*nP3)%nA3 + nA3
   width3+=2
   let tWidth = width3
   let nextLayer = []
