@@ -42,92 +42,101 @@ console.log(result2)
 
 // Part 3
 let grids3 = input3.split(/[\r\n]+/).map((x)=>x.split(''))
-let lastResult3
 let result3 = 0
+let resultsArr = Array(200).fill('.').map((x)=>-1)
+let lastResult3 = 0
+let gridcache = {}
 
 do{
     if(result3>0){
-        lastResult3 = result3
-        result3=0
+        lastResult3 = resultsArr.filter((x)=>x === 1).length;
     }
 
+    let gridInd=0
     for(m=0;m<grids3.length-7;m+=6){
         for(n=0;n<grids3[0].length-7;n+=6){
-            let grid = grids3.slice(m,m+8).map((x)=>x.slice(n,n+8))
-            let toSolve = []
-            let result = ''
-            let resultInd = 0
+            let grid = grids3.slice(m,m+8).map((x)=>x.slice(n,n+8));
+            if(resultsArr[gridInd] === -1 && !gridcache[grid.join('')]){
+                gridcache[grid.join('')]=true
 
-            for(r = 2; r < 6; r++){
-                for(c = 2; c < 6; c++){
-                    let row = new Set(grid[r].filter((x)=>x !== '.'));
-                    let col = new Set(grid.map((x)=>x[c]).filter((x)=>x !== '.'));
-                    let newVal = [...row.intersection(col)][0];
-                    
-                    if(newVal !== undefined){
-                        grid[r][c] = newVal;
-                        grids3[m+r][n+c] = newVal;
-                        result+=newVal;
-                    } else {
-                        result+='.'
-                        toSolve.push([r,c,resultInd])
-                    }
+                let toSolve = [];
+                let result = '';
+                let resultInd = 0;
 
-                    resultInd++
-                }
-            }
-    
-            result = result.split('')
-            let solveSeen = []
-    
-            loop1: for(t = 0; t < toSolve.length; t++){
-                let nextVal
-                let nextInd = toSolve.findIndex(([tr,tc,tix],sidx)=>{
-                    if(solveSeen.includes(sidx)){
-                        return false
-                    } else {
-                        let tRow = grid[tr]
-                        let tROuter = new Set(tRow.filter((x,ix)=>(ix<2||ix>5)&& !'?.'.includes(x)))
-                        let tRInner = new Set(tRow.slice(2,6).filter((x)=>x!=='.'))
-    
-                        let tCol = grid.map((x)=>x[tc])
-                        let tCOuter = new Set(tCol.filter((x,ix)=>(ix<2||ix>5)&& !'?.'.includes(x)))
-                        let tCInner = new Set(tCol.slice(2,6).filter((x)=>x!=='.'))
-    
-                        if([...tROuter.difference(tRInner)].length+[...tCOuter.difference(tCInner)].length === 1){
-                            nextVal = [...tROuter.difference(tRInner)][0]||[...tCOuter.difference(tCInner)][0]
-                            return true
+                for(r = 2; r < 6; r++){
+                    for(c = 2; c < 6; c++){
+                        let row = new Set(grid[r].filter((x)=>x !== '.'));
+                        let col = new Set(grid.map((x)=>x[c]).filter((x)=>x !== '.'));
+                        let newVal = [...row.intersection(col)][0];
+                        
+                        if(newVal !== undefined){
+                            grid[r][c] = newVal;
+                            grids3[m+r][n+c] = newVal;
+                            result+=newVal;
                         } else {
+                            result+='.';
+                            toSolve.push([r,c,resultInd]);
+                        }
+    
+                        resultInd++
+                    }
+                }
+        
+                result = result.split('')
+                let solveSeen = []
+        
+                loop1: for(t = 0; t < toSolve.length; t++){
+                    let nextVal
+                    let nextInd = toSolve.findIndex(([tr,tc,tix],sidx)=>{
+                        if(solveSeen.includes(sidx)){
                             return false
+                        } else {
+                            let tRow = grid[tr]
+                            let tROuter = new Set(tRow.filter((x,ix)=>(ix<2||ix>5)&& !'?.'.includes(x)))
+                            let tRInner = new Set(tRow.slice(2,6).filter((x)=>x!=='.'))
+        
+                            let tCol = grid.map((x)=>x[tc])
+                            let tCOuter = new Set(tCol.filter((x,ix)=>(ix<2||ix>5)&& !'?.'.includes(x)))
+                            let tCInner = new Set(tCol.slice(2,6).filter((x)=>x!=='.'))
+        
+                            if([...tROuter.difference(tRInner)].length+[...tCOuter.difference(tCInner)].length === 1){
+                                nextVal = [...tROuter.difference(tRInner)][0]||[...tCOuter.difference(tCInner)][0]
+                                return true
+                            } else {
+                                return false
+                            }
+                        }
+                    })
+                    
+                    if(nextInd === -1){
+                        break loop1
+                    } else {
+                        solveSeen.push(nextInd);
+                        let [nr,nc,nt] = toSolve[nextInd];
+                        grid[nr][nc] = nextVal;
+                        grids3[m+nr][n+nc] = nextVal;
+                        result[nt] = nextVal;
+        
+                        if(grid[nr].includes('?')){
+                            let cqInd = grid[nr].indexOf('?')
+                            grids3[m+nr][n+cqInd] = nextVal
+                        } else {
+                            let rqInd = grid.map((x)=>x[nc]).indexOf('?')
+                            grids3[m+rqInd][n+nc] = nextVal
                         }
                     }
-                })
-                
-                if(nextInd === -1){
-                    break loop1
-                } else {
-                    solveSeen.push(nextInd)
-                    let [nr,nc,nt] = toSolve[nextInd]
-                    grid[nr][nc] = nextVal
-                    grids3[m+nr][n+nc] = nextVal
-                    result[nt] = nextVal
-    
-                    if(grid[nr].includes('?')){
-                        let cqInd = grid[nr].indexOf('?')
-                        grids3[m+nr][n+cqInd] = nextVal
-                    } else {
-                        let rqInd = grid.map((x)=>x[nc]).indexOf('?')
-                        grids3[m+rqInd][n+nc] = nextVal
-                    }
+                }
+        
+                if(!result.includes('.')){
+                    result3 += result.map((x,ix)=>(ix+1)*power.indexOf(x)).reduce((acc,curr)=>acc+curr)    
+                    resultsArr[gridInd] = 1
                 }
             }
-    
-            if(!result.includes('.')){
-                result3 += result.map((x,ix)=>(ix+1)*power.indexOf(x)).reduce((acc,curr)=>acc+curr)
-            }    
+            gridInd++    
         }
+
     }
 
-} while (lastResult3 === undefined || lastResult3 !== result3)
+} while (lastResult3 !== resultsArr.filter((x)=>x === 1).length)
 
 console.log(result3)
