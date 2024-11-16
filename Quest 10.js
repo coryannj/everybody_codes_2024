@@ -14,11 +14,10 @@ function getRunic(grid,partNo){
     
     for(i=startRC;i<endRC;i++){
         for(j=startRC;j<endRC;j++){
-            let row = new Set(grid[i].filter((x)=>x !== '.'))
-            let col = new Set(grid.map((x)=>x[j]).filter((x)=>x !== '.'))
-            let newVal = [...row.intersection(col)][0]
-            grid[i][j] = newVal
-            result+=newVal
+            let row = new Set(grid[i].filter((x)=>x !== '.'));
+            let col = new Set(grid.map((x)=>x[j]).filter((x)=>x !== '.'));
+            let newVal = [...row.intersection(col)][0];
+            result+=newVal;
         }
     }
 
