@@ -31,12 +31,6 @@ console.log(countTermites(input1,4,'A'))
 console.log(countTermites(input2,10,'Z'))
 
 // Part 3
-let termiteKeys = [...new Set(input3.split(/[\r\n]+/).map((x)=>x.split(/[:,]/)).flat())]
-let population = []
-
-for(l=0;l<termiteKeys.length;l++){
-    population.push(countTermites(input3,20,termiteKeys[l]))
-}
-
+let population = [...new Set(input3.split(/[\r\n]+/).map((x)=>x.split(/[:,]/)).flat())].map((x)=>countTermites(input3,20,x))
 population.sort((a,b)=>a-b)
 console.log(population.at(-1)-population[0])
