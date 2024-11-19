@@ -4,17 +4,17 @@ const input1 = fs.readFileSync('../quest11_1.txt',{ encoding: 'utf8', flag: 'r' 
 const input2 = fs.readFileSync('../quest11_2.txt',{ encoding: 'utf8', flag: 'r' });
 const input3 = fs.readFileSync('../quest11_3.txt',{ encoding: 'utf8', flag: 'r' });
 
-function countTermites(input,days,first,partNo){
-    let lines = input.split(/[\r\n]+/).map((x)=>x.split(/[:,]/));
-    let termites = Object.fromEntries(lines.map((x)=>[x[0],x.slice(1)]))
-    let termiteCount = Object.fromEntries([...new Set(lines.flat())].map((x)=>[x,0]))
+function countTermites(input,days,first){
+    let termites = Object.fromEntries(input.split(/[\r\n]+/).map((x)=>x.split(/[:,]/)).map((x)=>[x[0],x.slice(1)]))
+    let termiteCount = {}
     termiteCount[first] = 1
 
     for(i=0;i<days;i++){
-        let newObj = Object.fromEntries([...new Set(lines.flat())].map((x)=>[x,0]))
+        let newObj = {}
     
         Object.keys(termiteCount).filter((x)=>termiteCount[x]>0).forEach((x)=>{
             termites[x].forEach((y)=>{
+                if(newObj[y]===undefined)newObj[y]=0
                 newObj[y]+=(termiteCount[x])
             })
         })
