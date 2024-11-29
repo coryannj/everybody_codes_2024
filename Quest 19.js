@@ -70,7 +70,7 @@ let allElements = grid3.flat();
 let allLen = allElements.length;
 let loopFound = {};
 let rounds3 = 1048576000;
-let counter3 = 0;
+let loopCount = 0
 let homeObj = Object.fromEntries(grid3.flatMap((x)=>x.map((y)=>[y,{'val':grid3Vals[y.split('-')[0]][y.split('-')[1]],'keys':[y]}])));
 
 const gridLookup = (gridKey) => {
@@ -78,13 +78,13 @@ const gridLookup = (gridKey) => {
     return grid3[r][c]
 }
 
-while(Object.keys(loopFound).length<allLen){
-    counter3++;
+while(loopCount<allLen){
     grid3 = message(key3,grid3);
 
     Object.keys(homeObj).filter((k)=>!loopFound[k]).forEach((k)=>{
         if(k === gridLookup(k)){
             loopFound[k] = true;
+            loopCount++
         } else {
             homeObj[k]['keys'].push(gridLookup(k));
         }
