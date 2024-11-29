@@ -20,9 +20,8 @@ const tree = (distObj,startNode) => {
 
     while(queue.findIndex((x)=>x.some((y)=>!visited.includes(y[1])))!==-1){
         let next = queue[queue.findIndex((x)=>x.some((y)=>!visited.includes(y[1])))].shift()
-        //console.log('next is ',next,' mst is currently',mst)
+
         if(visited.includes(next[1])){
-            //console.log('skip')
             continue;
         } else {
             visited.push(next[1])
@@ -35,7 +34,7 @@ const tree = (distObj,startNode) => {
         }
     }
 
-    return mst.length===0 ? 0 : mst.map((x)=>x[2]).reduce((acc,curr)=>acc+curr)+visited.length
+    return mst.length===0 ? [0,[]] : [mst.map((x)=>x[2]).reduce((acc,curr)=>acc+curr)+visited.length,visited]
 }
 
 function prims(input,partNo){
@@ -54,24 +53,24 @@ function prims(input,partNo){
         distances[`${r}-${c}`] = Object.fromEntries(rest)
     })
 
-
     if(partNo<3){
-        return tree(distances)
+        return tree(distances)[0]
     } else {
-        // let galaxies = []
-         let visited = []
+        let visited = []
         let next = Object.entries(distances).filter(([k,v])=>!visited.includes(k)).sort((a,b)=>Object.keys(b[1]).filter((x)=>!visited.includes(x)).length-Object.keys(a[1]).filter((v)=>!visited.includes(v)).length)
  
-        let galaxies = new Set()
+        let galaxies = []
 
-        next.forEach(([k,v])=>{
-            galaxies.add(tree(distances,k))
-        })
+        for(i=0;i<3;i++){
+            let [size,lastvisited] = tree(distances,next[0][0]);
+            visited.push(...lastvisited);
+            galaxies.push(size);
 
-        return [...galaxies].sort((a,b)=>b-a).slice(0,3).reduce((acc,curr)=>acc*curr,1)
+            next = Object.entries(distances).filter(([k,v])=>!visited.includes(k)).sort((a,b)=>Object.keys(b[1]).filter((x)=>!visited.includes(x)).length-Object.keys(a[1]).filter((v)=>!visited.includes(v)).length)
+        }
+
+        return galaxies.reduce((acc,curr)=>acc*curr,1)
     }
-
-
 
 }
 
